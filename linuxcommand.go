@@ -23,7 +23,8 @@ func (lc *LinuxCommand) Exec(args ...string) (int, string, error) {
 	args = append([]string{"-c"}, args...)
 	cmd := exec.Command(os.Getenv("SHELL"), args...)
 
-	cmd.SysProcAttr = &syscall.SysProcAttr{}
+	// Go会将PGID设置成与PID相同的值
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	outpip, err := cmd.StdoutPipe()
 	defer outpip.Close()
