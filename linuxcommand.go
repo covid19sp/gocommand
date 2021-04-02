@@ -19,7 +19,7 @@ func NewLinuxCommand() *LinuxCommand {
 // 执行命令行并返回结果
 // args: 命令行参数
 // return: 进程的pid, 命令行结果, 错误消息
-func (lc *LinuxCommand) Exec(args ...string) (int, string, error) {
+func (lc *LinuxCommand) Exec(args ...string) (*exec.Cmd, string, error) {
 	args = append([]string{"-c"}, args...)
 	cmd := exec.Command(os.Getenv("SHELL"), args...)
 
@@ -30,20 +30,20 @@ func (lc *LinuxCommand) Exec(args ...string) (int, string, error) {
 	defer outpip.Close()
 
 	if err != nil {
-		return 0, "", err
+		return cmd, "", err
 	}
 
 	err = cmd.Start()
 	if err != nil {
-		return 0, "", err
+		return cmd, "", err
 	}
 
 	out, err := ioutil.ReadAll(outpip)
 	if err != nil {
-		return 0, "", err
+		return cmd, "", err
 	}
 
-	return cmd.Process.Pid, string(out), nil
+	return cmd, string(out), nil
 }
 
 // 异步执行命令行并通过channel返回结果
